@@ -26,17 +26,6 @@ public class UserService {
         );
     }
 
-    public void printAllUsers() {
-        List<User> users = userRepository.findAll();
-        if (users.isEmpty()) {
-            System.out.println("DB에 저장된 사용자가 없습니다.");
-        } else {
-            for (User user : users) {
-                System.out.println("저장된 사용자 이메일: " + user.getEmail());
-            }
-        }
-    }
-
     public UserResponse login(String email, String password) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         User user = optionalUser.orElseThrow(() -> new RuntimeException("이메일이 존재하지 않습니다."));

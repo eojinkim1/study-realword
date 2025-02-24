@@ -24,11 +24,6 @@ public class UserController {
                 request.getUser().password(),
                 request.getUser().username()
         );
-        System.out.println("회원가입 완료: " + user.getEmail());
-
-        // 저장된 사용자 확인
-        userService.printAllUsers();
-
         return new UserResponse(
                 user.getEmail(),
                 null,
