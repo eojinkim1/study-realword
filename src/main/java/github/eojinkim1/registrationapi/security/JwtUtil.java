@@ -27,12 +27,16 @@ public class JwtUtil {
     }
 
     public String validateToken(String token) { // 토큰 검증 후 이메일 반환
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJwt(token)
-                .getBody()
-                .getSubject(); // 이메일 반환
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject(); // 이메일 반환
+        } catch (Exception e) {
+            throw new RuntimeException("유효하지 않은 JWT 토큰입니다.");
+        }
     }
 
 
