@@ -28,4 +28,15 @@ public class User {
                 .username(username)
                 .build();
     }
+
+    public User updateUser(String username, String password, String bio, String image) {
+        return User.builder()
+                .id(this.id)
+                .email(this.email)
+                .password(password != null ? password : this.password)
+                .username(username != null ? username : this.username)
+                .bio(bio != null ? bio : this.bio)
+                .image(image != null ? image : this.image)
+                .build();
+    }
 }
