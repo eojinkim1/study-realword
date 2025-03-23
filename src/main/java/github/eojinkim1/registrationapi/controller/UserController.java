@@ -2,6 +2,7 @@ package github.eojinkim1.registrationapi.controller;
 
 import github.eojinkim1.registrationapi.controller.dto.request.LoginRequest;
 import github.eojinkim1.registrationapi.controller.dto.request.UserRequest;
+import github.eojinkim1.registrationapi.controller.dto.request.UserUpdateRequest;
 import github.eojinkim1.registrationapi.controller.dto.request.UserWrapper;
 import github.eojinkim1.registrationapi.controller.dto.response.LoginResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.UserResponse;
@@ -56,6 +57,25 @@ public class UserController {
         String email = jwtUtil.validateToken(token);
 
         UserResponse userResponse = userService.getCurrentUser(email, token);
+
+        return ResponseEntity.ok(new LoginResponse(userResponse));
+    }
+
+    @PutMapping("/api/user")
+    public ResponseEntity<LoginResponse> updateUser(
+            @RequestHeader("Authorization")String authHeader,
+            @RequestBody UserWrapper<UserUpdateRequest> request) {
+
+        if(authHeader == null || authHeader.isBlank()) {
+            throw new RuntimeException("요청 헤더에 Authorization을 추가하여 유효한 토큰을 입력해주세요.");
+        }
+        if (!authHeader.startsWith("Token ")) {
+            throw new RuntimeException("Authorization 형식이 잘못되었습니다. 'Token <JWT>' 형식이어야 합니다.");
+        }
+
+        String token = authHeader.substring(6);
+        String email = jwtUtil.validateToken(token);
+        UserResponse userResponse = userService.updateUser(email, request.getUser());
 
         return ResponseEntity.ok(new LoginResponse(userResponse));
     }
