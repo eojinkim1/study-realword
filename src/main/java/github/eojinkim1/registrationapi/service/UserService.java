@@ -1,5 +1,6 @@
 package github.eojinkim1.registrationapi.service;
 
+import github.eojinkim1.registrationapi.controller.dto.request.UserUpdateRequest;
 import github.eojinkim1.registrationapi.controller.dto.response.UserResponse;
 import github.eojinkim1.registrationapi.domain.User;
 import github.eojinkim1.registrationapi.domain.UserRepository;
@@ -57,5 +58,28 @@ public class UserService {
                 userBio,
                 user.getImage()
         );
+    }
+
+    public UserResponse updateUser(String email, UserUpdateRequest updateRequest) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        user = user.updateUser(
+                updateRequest.username(),
+                updateRequest.password(),
+                updateRequest.bio(),
+                updateRequest.image()
+        );
+
+        userRepository.save(user);
+
+        return new UserResponse(
+                user.getEmail(),
+                null,
+                user.getUsername(),
+                user.getBio(),
+                user.getImage()
+        );
+
     }
 }
