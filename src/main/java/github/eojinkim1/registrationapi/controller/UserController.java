@@ -5,6 +5,7 @@ import github.eojinkim1.registrationapi.controller.dto.request.UserRequest;
 import github.eojinkim1.registrationapi.controller.dto.request.UserUpdateRequest;
 import github.eojinkim1.registrationapi.controller.dto.request.UserWrapper;
 import github.eojinkim1.registrationapi.controller.dto.response.LoginResponse;
+import github.eojinkim1.registrationapi.controller.dto.response.ProfileResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.UserResponse;
 import github.eojinkim1.registrationapi.domain.User;
 import github.eojinkim1.registrationapi.security.JwtUtil;
@@ -59,6 +60,11 @@ public class UserController {
         UserResponse userResponse = userService.getCurrentUser(email, token);
 
         return ResponseEntity.ok(new LoginResponse(userResponse));
+    }
+
+    @GetMapping("/api/profiles/{username}")
+    public ProfileResponse getProfile(@PathVariable("username") String username) {
+        return userService.getProfile(username);
     }
 
     @PutMapping("/api/user")
