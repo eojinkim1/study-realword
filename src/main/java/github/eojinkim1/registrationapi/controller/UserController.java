@@ -49,6 +49,14 @@ public class UserController {
         return new LoginResponse(userResponse);
     }
 
+    @PostMapping("/api/profiles/{username}/follow")
+    public ProfileResponse followUser(
+            @PathVariable("username") String username,
+            @RequestHeader("Authorization") String authHeader) {
+        String email = jwtUtil.validateToken(authHeader.substring(6));
+        return userService.followUser(email, username);
+    }
+
     @GetMapping("/api/user")
     public ResponseEntity<LoginResponse> getCurrentUser(@RequestHeader("Authorization")String authHeader) {
         if(authHeader == null || !authHeader.startsWith("Token ")) {
@@ -63,8 +71,14 @@ public class UserController {
     }
 
     @GetMapping("/api/profiles/{username}")
-    public ProfileResponse getProfile(@PathVariable("username") String username) {
-        return userService.getProfile(username);
+    public ProfileResponse getProfile(
+            @PathVariable("username") String username,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        String email = null;
+        if (authHeader != null && authHeader.startsWith("Token ")) {
+            email = jwtUtil.validateToken(authHeader.substring(6));
+        }
+        return userService.getProfile(email, username);
     }
 
     @PutMapping("/api/user")
@@ -85,4 +99,12 @@ public class UserController {
 
         return ResponseEntity.ok(new LoginResponse(userResponse));
     }
+
+    @DeleteMapping("/api/profiles/{username}/follow")
+    public ProfileResponse unfollowUser(@PathVariable("username") String username,
+                                        @RequestHeader("Authorization") String authHeader) {
+        String email = jwtUtil.validateToken(authHeader.substring(6));
+        return userService.unfollowUser(email, username);
+    }
+
 }
