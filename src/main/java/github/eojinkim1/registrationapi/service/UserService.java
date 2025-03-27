@@ -3,9 +3,12 @@ package github.eojinkim1.registrationapi.service;
 import github.eojinkim1.registrationapi.controller.dto.request.UserUpdateRequest;
 import github.eojinkim1.registrationapi.controller.dto.response.ProfileResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.UserResponse;
+import github.eojinkim1.registrationapi.domain.Follow;
+import github.eojinkim1.registrationapi.domain.FollowRepository;
 import github.eojinkim1.registrationapi.domain.User;
 import github.eojinkim1.registrationapi.domain.UserRepository;
 import github.eojinkim1.registrationapi.security.JwtUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +18,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
     private final JwtUtil jwtUtil;
+
+    private User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    }
+
+    private User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("대상 사용자가 존재하지 않습니다."));
+    }
 
     public User registration(String email, String password, String username) {
         return userRepository.save(
@@ -83,18 +97,54 @@ public class UserService {
         );
     }
 
-    public ProfileResponse getProfile(String username) {
-        User user = userRepository.findByUsername(username)
+    public ProfileResponse getProfile(String currentUserEmail, String targetUsername) {
+        User target = userRepository.findByUsername(targetUsername)
                 .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+
+        boolean following = false;
+
+        if (currentUserEmail != null) {
+            User current = userRepository.findByEmail(currentUserEmail)
+                    .orElseThrow(() -> new RuntimeException("현재 사용자를 찾을 수 없습니다."));
+            following = followRepository.existsByFollowerAndFollowing(current, target);
+        }
 
         return new ProfileResponse(
                 new ProfileResponse.Profile(
-                        user.getUsername(),
-                        user.getBio(),
-                        user.getImage(),
-                        false
+                        target.getUsername(),
+                        target.getBio(),
+                        target.getImage(),
+                        following
                 )
         );
+    }
 
+    @Transactional
+    public ProfileResponse followUser(String currentEmail, String targetUsername) {
+        User currentUser = findByEmail(currentEmail);
+        User targetUser = findByUsername(targetUsername);
+
+        if (!followRepository.existsByFollowerAndFollowing(currentUser, targetUser)) {
+            followRepository.save(Follow.of(currentUser, targetUser));
+        }
+        return buildProfileResponse(targetUser, true);
+    }
+
+    @Transactional
+    public ProfileResponse unfollowUser(String currentEmail, String targetUsername) {
+        User currentUser = findByEmail(currentEmail);
+        User targetUser = findByUsername(targetUsername);
+
+        followRepository.deleteByFollowerAndFollowing(currentUser, targetUser);
+        return buildProfileResponse(targetUser, false);
+    }
+
+    private ProfileResponse buildProfileResponse(User target, boolean following) {
+        return new ProfileResponse(new ProfileResponse.Profile(
+                target.getUsername(),
+                target.getBio(),
+                target.getImage(),
+                following
+        ));
     }
 }
