@@ -4,9 +4,9 @@ import github.eojinkim1.registrationapi.controller.dto.request.UserUpdateRequest
 import github.eojinkim1.registrationapi.controller.dto.response.ProfileResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.UserResponse;
 import github.eojinkim1.registrationapi.domain.Follow;
-import github.eojinkim1.registrationapi.domain.FollowRepository;
+import github.eojinkim1.registrationapi.repository.FollowRepository;
 import github.eojinkim1.registrationapi.domain.User;
-import github.eojinkim1.registrationapi.domain.UserRepository;
+import github.eojinkim1.registrationapi.repository.UserRepository;
 import github.eojinkim1.registrationapi.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +33,11 @@ public class UserService {
 
     public User registration(String email, String password, String username) {
         return userRepository.save(
-            User.registration(
-                    email,
-                    password,
-                    username
-            )
+                User.registration(
+                        email,
+                        password,
+                        username
+                )
         );
     }
 
