@@ -1,5 +1,7 @@
-package github.eojinkim1.registrationapi.domain;
+package github.eojinkim1.registrationapi.repository;
 
+import github.eojinkim1.registrationapi.domain.Follow;
+import github.eojinkim1.registrationapi.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
