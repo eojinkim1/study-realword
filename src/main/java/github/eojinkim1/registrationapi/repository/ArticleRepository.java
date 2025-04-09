@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpecificationExecutor<Article> {
     Optional<Article> findBySlug(String slug);
+    int countBySlug(String slug);
 }
