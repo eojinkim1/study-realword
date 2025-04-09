@@ -1,5 +1,6 @@
 package github.eojinkim1.registrationapi.controller;
 
+import github.eojinkim1.registrationapi.controller.dto.request.ArticleWrapperRequest;
 import github.eojinkim1.registrationapi.controller.dto.response.ArticleListResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.ArticleWrapperResponse;
 import github.eojinkim1.registrationapi.security.JwtUtil;
@@ -30,7 +31,6 @@ public class ArticleController {
         return articleService.listArticles(tag, author, favorited, limit, offset, viewerEmail);
     }
 
-
     @GetMapping("/api/articles/{slug}")
     public ArticleWrapperResponse getArticle(
             @PathVariable("slug") String slug,
@@ -43,4 +43,12 @@ public class ArticleController {
         return articleService.getArticleBySlug(slug, viewerEmail);
     }
 
+    @PostMapping("/api/articles")
+    public ArticleWrapperResponse createArticle(
+            @RequestBody ArticleWrapperRequest request,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String email = jwtUtil.validateToken(authHeader.substring(6));
+        return articleService.createArticle(request.article(), email);
+    }
 }
