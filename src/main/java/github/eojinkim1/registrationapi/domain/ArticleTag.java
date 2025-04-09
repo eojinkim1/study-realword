@@ -18,4 +18,9 @@ public class ArticleTag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Tag tag;
+
+    public ArticleTag(Article article, Tag tag) {
+        this.article = article;
+        this.tag = tag;
+    }
 }
