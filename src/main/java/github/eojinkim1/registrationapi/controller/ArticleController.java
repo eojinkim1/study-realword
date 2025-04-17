@@ -43,6 +43,16 @@ public class ArticleController {
         return articleService.getArticleBySlug(slug, viewerEmail);
     }
 
+    @GetMapping("/api/articles/feed")
+    public ArticleListResponse getFeedArticles(
+            @RequestParam(value = "limit", defaultValue = "20") int limit,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestHeader(value = "Authorization") String authHeader
+    ) {
+        String viewerEmail = jwtUtil.validateToken(authHeader.substring(6));
+        return articleService.getFeedArticles(limit, offset, viewerEmail);
+    }
+
     @PostMapping("/api/articles")
     public ArticleWrapperResponse createArticle(
             @RequestBody ArticleWrapperRequest request,
