@@ -32,6 +32,7 @@ public class ArticleService {
     private final ArticleTagRepository articleTagRepository;
     private final UserRepository userRepository;
     private final TagRepository tagRepository;
+    private final FollowRepository followRepository;
 
     public ArticleListResponse listArticles(
             String tag,
@@ -137,4 +138,22 @@ public class ArticleService {
         }
         return slug;
     }
+
+    public ArticleListResponse getFeedArticles(int limit, int offset, String viewerEmail) {
+        int page = limit > 0 ? offset / limit : 0;
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        User viewer = userRepository.findByEmail(viewerEmail)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        List<User> followedUsers = followRepository.findFollowedUsers(viewer);
+        Page<Article> pageResult = articleRepository.findByAuthorIn(followedUsers, pageable);
+
+        List<ArticleResponse> articles = pageResult.getContent().stream()
+                .map(article -> ArticleResponse.from(article, viewer, favoriteRepository, articleTagRepository))
+                .toList();
+
+        return new ArticleListResponse(articles, pageResult.getTotalElements());
+    }
+
 }
