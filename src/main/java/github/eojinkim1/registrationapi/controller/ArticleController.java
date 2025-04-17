@@ -1,10 +1,13 @@
 package github.eojinkim1.registrationapi.controller;
 
 import github.eojinkim1.registrationapi.controller.dto.request.ArticleWrapperRequest;
+import github.eojinkim1.registrationapi.controller.dto.request.CommentRequest;
 import github.eojinkim1.registrationapi.controller.dto.response.ArticleListResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.ArticleWrapperResponse;
+import github.eojinkim1.registrationapi.controller.dto.response.CommentResponse;
 import github.eojinkim1.registrationapi.security.JwtUtil;
 import github.eojinkim1.registrationapi.service.ArticleService;
+import github.eojinkim1.registrationapi.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class ArticleController {
     private final ArticleService articleService;
     private final JwtUtil jwtUtil;
+    private final CommentService commentService;
 
     @GetMapping("/api/articles")
     public ArticleListResponse listArticles(
@@ -60,5 +64,15 @@ public class ArticleController {
     ) {
         String email = jwtUtil.validateToken(authHeader.substring(6));
         return articleService.createArticle(request.article(), email);
+    }
+
+    @PostMapping("/api/articles/{slug}/comments")
+    public CommentResponse addComment(
+            @PathVariable("slug") String slug,
+            @RequestBody CommentRequest request,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String email = jwtUtil.validateToken(authHeader.substring(6));
+        return commentService.addComment(slug, request, email);
     }
 }
