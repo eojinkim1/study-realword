@@ -8,6 +8,7 @@ import github.eojinkim1.registrationapi.domain.User;
 import github.eojinkim1.registrationapi.repository.ArticleRepository;
 import github.eojinkim1.registrationapi.repository.CommentRepository;
 import github.eojinkim1.registrationapi.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,5 +52,22 @@ public class CommentService {
         return comments.stream()
                 .map(c -> CommentResponse.from(c, c.getAuthor()))
                 .toList();
+    }
+
+    @Transactional
+    public void deleteComment(String slug, Long commentId, String userEmail) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("댓글이 존재하지 않습니다."));
+        if (!comment.getArticle().getSlug().equals(slug)) {
+            throw new RuntimeException("잘못된 댓글 요청입니다.");
+        }
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("사용자 정보를 찾을 수 없습니다."));
+        if (!comment.getAuthor().getId().equals(user.getId())) {
+            throw new RuntimeException("댓글 작성자만 삭제할 수 있습니다.");
+        }
+
+        commentRepository.delete(comment);
     }
 }
