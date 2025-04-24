@@ -2,7 +2,6 @@ package github.eojinkim1.registrationapi.controller.dto.response;
 
 import github.eojinkim1.registrationapi.domain.Comment;
 import github.eojinkim1.registrationapi.domain.User;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
