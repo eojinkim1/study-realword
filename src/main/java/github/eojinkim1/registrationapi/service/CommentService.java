@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,15 @@ public class CommentService {
         Comment saved = commentRepository.save(comment);
 
         return CommentResponse.from(saved, user);
+    }
 
+    public List<CommentResponse> listComments(String slug, String viewerEmail) {
+        Article article = articleRepository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("해당 게시글이 존재하지 않습니다."));
+        List<Comment> comments = commentRepository.findByArticleOrderByCreatedAtAsc(article);
+
+        return comments.stream()
+                .map(c -> CommentResponse.from(c, c.getAuthor()))
+                .toList();
     }
 }
