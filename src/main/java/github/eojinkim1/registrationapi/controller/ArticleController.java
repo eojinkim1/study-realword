@@ -5,11 +5,14 @@ import github.eojinkim1.registrationapi.controller.dto.request.CommentRequest;
 import github.eojinkim1.registrationapi.controller.dto.response.ArticleListResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.ArticleWrapperResponse;
 import github.eojinkim1.registrationapi.controller.dto.response.CommentResponse;
+import github.eojinkim1.registrationapi.controller.dto.response.CommentsResponse;
 import github.eojinkim1.registrationapi.security.JwtUtil;
 import github.eojinkim1.registrationapi.service.ArticleService;
 import github.eojinkim1.registrationapi.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,6 +58,19 @@ public class ArticleController {
     ) {
         String viewerEmail = jwtUtil.validateToken(authHeader.substring(6));
         return articleService.getFeedArticles(limit, offset, viewerEmail);
+    }
+
+    @GetMapping("/api/articles/{slug}/comments")
+    public CommentsResponse listComments(
+            @PathVariable("slug") String slug,
+            @RequestHeader(value = "Authorization", required = false) String authHeader
+    ){
+        String viewerEmail = null;
+        if (authHeader != null && authHeader.startsWith("Token ")) {
+            viewerEmail = jwtUtil.validateToken(authHeader.substring(6));
+        }
+        List<CommentResponse> comments = commentService.listComments(slug, viewerEmail);
+        return new CommentsResponse(comments);
     }
 
     @PostMapping("/api/articles")
