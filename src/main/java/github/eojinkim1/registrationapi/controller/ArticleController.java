@@ -10,6 +10,7 @@ import github.eojinkim1.registrationapi.security.JwtUtil;
 import github.eojinkim1.registrationapi.service.ArticleService;
 import github.eojinkim1.registrationapi.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -64,7 +65,7 @@ public class ArticleController {
     public CommentsResponse listComments(
             @PathVariable("slug") String slug,
             @RequestHeader(value = "Authorization", required = false) String authHeader
-    ){
+    ) {
         String viewerEmail = null;
         if (authHeader != null && authHeader.startsWith("Token ")) {
             viewerEmail = jwtUtil.validateToken(authHeader.substring(6));
@@ -90,5 +91,16 @@ public class ArticleController {
     ) {
         String email = jwtUtil.validateToken(authHeader.substring(6));
         return commentService.addComment(slug, request, email);
+    }
+
+    @DeleteMapping("/api/articles/{slug}/comments/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteComment(
+            @PathVariable("slug") String slug,
+            @PathVariable("id") Long commentId,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String email = jwtUtil.validateToken(authHeader.substring(6));
+        commentService.deleteComment(slug, commentId, email);
     }
 }
